@@ -4,18 +4,47 @@ import { mdiPlus, mdiLogout, mdiMessageOutline, mdiFileEditOutline, mdiDeleteOut
 import { Link, router, usePage } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { onMounted, ref, watch } from 'vue';
+import { useDebounceFn } from '@vueuse/core'
 
 const user = usePage().props.auth.user;
-const roomToEdit = ref();
+const roomToEdit = ref({ name: '', id: '' });
 const editRoomName = ref(false);
 const nameDiv = ref(null);
 const nameLink = ref(null);
+const chatSettings = ref({});
+const chatRooms = ref([]);
+const activeChatRoom = ref(null);
+const models = ref([
+    {
+        "name": "gpt-3.5-turbo",
+        "info": "Advanced model for generating text"
+    },
+    {
+        "name": "gpt-4",
+        "info": "Next-generation model for generating text"
+    },
+    {
+        "name": "gpt-3.5-turbo-0301",
+        "info": "Version of the gpt-3.5-turbo model"
+    },
+    {
+        "name": "gpt-3.5-turbo-0613",
+        "info": "Version of the gpt-3.5-turbo model"
+    },
+    {
+        "name": "gpt-3.5-turbo-16k-0613",
+        "info": "Version of the gpt-3.5-turbo model with 16k tokens"
+    }
+]);
+
 onMounted(() => {
     if (usePage().props.chat.activeChatRoom != null) {
         activeChatRoom.value = { id: usePage().props.chat.activeChatRoom.id, name: usePage().props.chat.activeChatRoom.name };
     }
     chatRooms.value = usePage().props.chat.chatRooms;
+    chatSettings.value = usePage().props.chat.chatSettings;
 })
+
 
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     if (newValue) {
@@ -27,6 +56,10 @@ watch(() => usePage().props.chat.chatRooms, (newValue, oldValue) => {
     chatRooms.value = newValue;
 });
 
+watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
+    chatSettings.value = newValue;
+});
+
 const sendCreateRoom = () => {
     router.post('/chat-rooms', { user_id: user.id, name: 'New Chat Room' }, {});
 }
@@ -35,45 +68,69 @@ const sendDeleteRoom = (roomId) => {
     router.delete("/chat-rooms/" + roomId, {}, {});
 }
 
-const editRoom = room => {
-    console.log(this.$refs);
-    if (nameLink.value)
-        nameLink.value.focus();
-    else
-        nameDiv.value.focus();
-    roomToEdit.value = room;
-    editRoomName.value = true;
+
+const sendUpdateRoomName = () => {
+    router.put('/chat-rooms/' + roomToEdit.value.id, { name: roomToEdit.value.name }, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => {
+            editRoomName.value = false;
+            chatRooms.value.map(room => room.id == roomToEdit.value.id ? roomToEdit.value : null)
+            roomToEdit.value = { name: '', id: '' };
+        }
+    });
 }
 
-const chatRooms = ref([]);
-const activeChatRoom = ref(null);
+const editRoom = room => {
+    editRoomName.value = true;
+    if (activeChatRoom.value.id !== room.id)
+        nameLink.value[0].focus();
+    else
+        nameDiv.value[0].focus();
+    roomToEdit.value = { ...room };
+}
+
+const closeEditRoom = () => {
+    editRoomName.value = false;
+    roomToEdit.value = { name: '', id: '' };
+}
+
+const sendUpdateChatSettings = useDebounceFn(() => {
+    router.put('/chat-settings', { ...chatSettings.value }, {
+        // preserveScroll: true, preserveState: true
+    });
+}, 200)
+
 
 </script>
 
 <template>
     <div class="min-h-screen bg-[hsl(0,0%,10%)] flex">
-        <div class=" bg-[hsl(0,0%,5%)] text-white shadow flex justify-between w-full max-w-[300px] flex-col">
+        <div class=" bg-[hsl(0,0%,5%)] text-white shadow flex justify-between w-[300px] flex-col fixed h-screen">
             <div class="p-4">
                 <PrimaryButton @click="sendCreateRoom"
                     class="min-w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                     <svg-icon type="mdi" :path="mdiPlus"></svg-icon>
                     <div>Nouveau Chat</div>
                 </PrimaryButton>
-                <div v-for="(room, index) in   chatRooms  " :key="index">
+                <div v-for="(room, index) in    chatRooms   " :key="index">
                     <div
                         :class="{ 'flex items-center p-2 rounded mt-2': true, 'bg-[hsl(0,0%,30%)]': room.id === activeChatRoom?.id }">
-                        <Link v-if="room.id !== activeChatRoom.id" href="/" :data="{ chatRoom: room.id }"
+                        <Link href="/" :class="{ 'hidden': room.id == activeChatRoom.id }" :data="{ chatRoom: room.id }"
                             class="flex gap-4 items-center  min-w-[80%]">
                         <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                        <div v-if="!editRoomName" class="min-w-[80%]">{{ room.name }}</div>
-                        <input ref="nameLink" v-else v-model="roomName.name"
-                            class="min-w-[80%]  p-0 m-0 underline-black border-none bg-transparent text-white" />
+                        <div :class="{ 'min-w-[80%]': true, 'hidden': editRoomName }">{{ room.name }}</div>
+                        <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
+                            :class="{ 'min-w-[80%]  p-0 m-0 border-none bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
                         </Link>
-                        <div v-else class="flex gap-4 items-center  min-w-[80%]">
+                        <div
+                            :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex gap-4 items-center  min-w-[80%]': true }">
                             <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                            <div v-if="!editRoomName" class="min-w-[80%]">{{ room.name }}</div>
-                            <input ref="nameDiv" v-else v-model="roomToEdit.name"
-                                class="min-w-[80%]  p-0 m-0 underline-black border-none bg-transparent text-white" />
+                            <div :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName }">{{ room.name }}
+                            </div>
+                            <input ref="nameDiv" @keydown.enter="sendUpdateRoomName"
+                                :class="{ 'min-w-[80%]  p-0 m-0 border-none bg-transparent text-white focus:ring-0 focus:outline-none ': true, 'hidden': !editRoomName }"
+                                v-model="roomToEdit.name" />
                         </div>
                         <div class="relative w-[20%] h-full">
                             <div v-if="!editRoomName" class="absolute -top-[11px] flex items-center gap-2">
@@ -83,15 +140,34 @@ const activeChatRoom = ref(null);
                                     size="20" :path="mdiDeleteOutline"></svg-icon>
                             </div>
                             <div v-else class="absolute -top-[11px] flex items-center gap-2">
-                                <svg-icon class="hover:cursor-pointer" type="mdi" size="20" :path="mdiCheckBold"></svg-icon>
-                                <svg-icon @click="() => editRoomName = false" class="hover:cursor-pointer" type="mdi"
-                                    size="20" :path="mdiClose"></svg-icon>
+                                <svg-icon @click="sendUpdateRoomName" class="hover:cursor-pointer" type="mdi" size="20"
+                                    :path="mdiCheckBold"></svg-icon>
+                                <svg-icon @click="closeEditRoom" class="hover:cursor-pointer" type="mdi" size="20"
+                                    :path="mdiClose"></svg-icon>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="p-4">
+                <div class="mb-4">
+                    <div class="font-bold text-xl">Model</div>
+                    <select v-on:change="sendUpdateChatSettings"
+                        class="bg-[hsl(0,0%,20%)] text-white border-none rounded focus:ring-0 focus:outline-none"
+                        v-model="chatSettings.model">
+                        <option class="text-center" v-for="model in models">
+                            {{ model.name }}
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <div class="font-bold text-xl">Température</div>
+                    <div class="flex items-center justify-between">
+                        <input v-on:change="sendUpdateChatSettings" v-model="chatSettings.temperature" class="w-[80%]"
+                            type="range" min="0" max="2" step="0.1" />
+                        <div class="text-lg">{{ chatSettings.temperature }}</div>
+                    </div>
+                </div>
                 <PrimaryButton href="/logout" method="POST" type="link"
                     class="min-w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                     <svg-icon type="mdi" :path="mdiLogout"></svg-icon>
@@ -99,7 +175,7 @@ const activeChatRoom = ref(null);
                 </PrimaryButton>
             </div>
         </div>
-        <div class="w-full">
+        <div class="w-full ml-[300px] relative">
             <slot />
         </div>
     </div>

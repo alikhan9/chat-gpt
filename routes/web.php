@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatRoomsController;
+use App\Http\Controllers\ChatSettingsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -19,15 +20,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth')->group(function () {
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
     Route::get('/', [ChatController::class, 'home']);
     Route::post('/chat-rooms', [ChatRoomsController::class, 'store']);
     Route::post('/message', [MessageController::class,'store']);
     Route::delete('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'destroy']);
+    Route::put('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'update']);
+    Route::put('chat-settings', [ChatSettingsController::class, 'update']);
 });
 
 require __DIR__.'/auth.php';

@@ -9,7 +9,6 @@ class ChatController extends Controller
 {
     public function home(Request $request)
     {
-        return Inertia::render('Home', [
-        ]);
+        return Inertia::render('Home', []);
     }
 }

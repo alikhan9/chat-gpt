@@ -20,6 +20,7 @@
     "dependencies": {
         "@jamescoyle/vue-icon": "^0.1.2",
         "@mdi/js": "^7.3.67",
+        "@vueuse/core": "^10.6.1",
         "dotenv": "^16.3.1",
         "openai": "^4.17.4"
     }

@@ -31,17 +31,25 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+
+        $user = auth()->user();
+
+        if ($user !== null) {
+            $data = [
+                'activeChatRoom' => $request->has('chatRoom') ? ChatRoom::with('messages')->where('id', $request->chatRoom)->first() : ChatRoom::with('messages')->where('user_id', $user->id)->latest()->first(),
+                'chatRooms' => $user->chatRooms()->latest()->get(),
+                'chatSettings' => $user->chatSettings()->select('model', 'temperature')->first(),
+            ];
+        } else {
+            $data = null;
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'chat' =>
-                auth()->user() != null ? [
-                'activeChatRoom' => $request->has('chatRoom') == true ? ChatRoom::with('messages')->where('id', $request->chatRoom)->first() : ChatRoom::with('messages')->where('user_id', auth()->id())->latest()->first(),
-                'chatRooms' => auth()->user()->chatRooms()->latest()->get()]
-                : null
-            ,
+            'chat' => $data,
             'ziggy' => fn () => [
                 ...(new Ziggy())->toArray(),
                 'location' => $request->url(),

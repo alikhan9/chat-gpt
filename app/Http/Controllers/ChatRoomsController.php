@@ -25,4 +25,10 @@ class ChatRoomsController extends Controller
         $chatRoom->delete();
         return Inertia::location('/');
     }
+
+    public function update(ChatRoom $chatRoom, Request $request)
+    {
+        $chatRoom->update(['name' => $request->name]);
+        return back();
+    }
 }

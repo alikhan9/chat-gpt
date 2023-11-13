@@ -1,56 +1,90 @@
 <script setup>
 import { Head, usePage, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import OpenAI from "openai";
-import TextInput from '@/Components/TextInput.vue';
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiArrowRightBox, mdiRobot, mdiAlphaABox } from '@mdi/js'
+import { mdiRobot, mdiAlphaABox, mdiSend, mdiStop } from '@mdi/js'
 
-
+const props = defineProps({
+    chatSettings: Object
+})
 onMounted(() => {
     if (usePage().props.chat.activeChatRoom != null) {
         fullChat.value = usePage().props.chat.activeChatRoom.messages.map(c => { return { content: c.content, role: c.role } });
         chatRoom.value = { id: usePage().props.chat.activeChatRoom.id, name: usePage().props.chat.activeChatRoom.name };
     }
+
+    chatSettings.value = usePage().props.chat.chatSettings;
 })
+
+watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
+    chatSettings.value = newValue;
+});
 
 const openai = new OpenAI({
     apiKey: import.meta.env.VITE_API_KEY,
     dangerouslyAllowBrowser: true,
 });
 
-const message = ref();
+const chatSettings = ref({});
+const max_tokkens_context_message = ref(100);
+const model = ref('gpt-3.5-turbo');
+const message = ref('');
 const fullChat = ref([]);
 const chatRoom = ref(null);
 const enableInput = ref(false);
+const textAreaReff = ref()
+const currentStream = ref(null);
 
-const response = ref('');
 
 const saveInDatabase = (role, content) => {
     router.post('/message', { role, content, chat_room_id: chatRoom.value.id });
 }
 
 const send = async () => {
+    if (message.value.length == 0)
+        return;
     const mes = message.value;
     enableInput.value = true;
     message.value = '';
     saveInDatabase('user', mes);
     fullChat.value.push({ role: 'user', content: mes });
 
-    const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 5, fullChat.value.length - 1) : fullChat.value;
+    const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
 
-    const completion = await openai.chat.completions.create({
+    messagesToSend.map(m => m.content.slice(0, max_tokkens_context_message.value));
+
+    currentStream.value = await openai.chat.completions.create({
         messages: messagesToSend,
-        model: "gpt-3.5-turbo",
         stream: true,
+        ...chatSettings.value
     });
     fullChat.value.push({ role: 'assistant', content: '' });
-    for await (const chunk of completion) {
+    for await (const chunk of currentStream.value) {
+        if (breakStream.value)
+            break;
         if (chunk.choices[0].delta.content)
             fullChat.value[fullChat.value.length - 1].content += chunk.choices[0].delta.content;
     }
     saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
     enableInput.value = false;
+    breakStream.value = false;
+    currentStream.value = null;
+}
+
+const breakStream = ref(false);
+
+const stopStream = () => {
+    breakStream.value = true;
+}
+
+const autoResize = () => {
+    textAreaReff.value.style.height = 'auto';
+    if (textAreaReff.value.scrollHeight <= 200) {
+        textAreaReff.value.style.height = `${textAreaReff.value.scrollHeight}px`;
+    } else {
+        textAreaReff.value.style.height = '200px';
+    }
 }
 
 </script>
@@ -58,31 +92,45 @@ const send = async () => {
 <template>
     <Head title="ChatGpt" />
     <div class="text-white flex justify-center">
-        <div class="container relative min-h-[98vh]">
+        <div class=" min-h-[98vh] relative w-full">
             <div>
-                <div class="flex gap-4 absolute bottom-0 w-full max-h-[500px] justify-center" :aria-disabled="enableInput">
-                    <textarea id="message" type="text" @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'"
-                        rows="1" class="min-w-[90%] border overflow-auto rounded focus:ring-0  bg-transparent "
-                        style="resize: vertical; overflow: auto;" v-model="message" :disabled="enableInput" />
-                    <button @click="send" class="bg-green-500 text-white px-4 py-2 rounded" :disabled="enableInput">
-                        Envoyer
-                    </button>
+                <div class="mx-auto min-w-full gap-4 fixed bottom-0 py-4 bg-[hsl(0,0%,10%)] z-50  max-h-[500px]"
+                    :aria-disabled="enableInput">
+                    <div class="flex gap-4 justify-center w-[80vw] relative">
+                        <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
+                            @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
+                            class="min-w-[60vw] border overflow-auto rounded focus:ring-0  bg-transparent "
+                            style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
+                        <svg-icon @click="send" color="red" size="36"
+                            :class="{ 'self-center text-white w-[80px] p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
+                            type="mdi" :path="mdiSend">
+                        </svg-icon>
+                        <div v-if="currentStream"
+                            class="absolute flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)] -top-16 right-28 rounded border px-3 py-1"
+                            @click="stopStream">
+                            <SvgIcon type="mdi" :path="mdiStop" size="32" />
+                            Stop
+                        </div>
+                    </div>
                 </div>
-                <div class="p-4">
+                <div v-if="fullChat.length > 0" class="overflow-auto flex flex-col mt-2 justify-center mb-60 border-b pb-6">
                     <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
-                        <div v-if="item.role == 'assistant'" class="bg-[hsl(0,0%,15%)]  p-2 rounded">
-                            <div class="flex items-center">
-                                <svg-icon type="mdi" :path="mdiRobot" class="min-w-[5%] text-red-500"></svg-icon>
-                                <div>
-                                    {{ item.content }}
+                        <div
+                            :class="{ 'bg-[hsl(0,0%,15%)] p-4': !item.role == 'assistant', 'bg-[hsl(0,0%,30%)] p-4': item.role == 'assistant' }">
+                            <div v-if="item.role == 'assistant'" class=" min-w-full p-2 rounded">
+                                <div class="flex items-center">
+                                    <svg-icon type="mdi" :path="mdiRobot" class="min-w-[5%] text-red-500"></svg-icon>
+                                    <div>
+                                        {{ item.content }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div v-else class="bg-[hsl(0,0%,30%)] p-2 rounded">
-                            <div class="flex items-center">
-                                <svg-icon type="mdi" :path="mdiAlphaABox" class="min-w-[5%] text-green-500"></svg-icon>
-                                <div class="font-bold">
-                                    {{ item.content }}
+                            <div v-else class="rounded min-w-full p-4">
+                                <div class="flex items-center">
+                                    <svg-icon type="mdi" :path="mdiAlphaABox" class="min-w-[5%] text-green-500"></svg-icon>
+                                    <div>
+                                        {{ item.content }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -90,6 +138,5 @@ const send = async () => {
                 </div>
             </div>
         </div>
-
     </div>
 </template>
