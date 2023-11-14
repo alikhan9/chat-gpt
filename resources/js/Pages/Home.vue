@@ -92,7 +92,7 @@ const autoResize = () => {
         if (textAreaReff.value.scrollHeight <= 200) {
             textAreaReff.value.style.height = textAreaReff.value.scrollHeight - 38 + 'px';
         } else {
-            textAreaReff.value.style.height = '15vh';
+            textAreaReff.value.style.height = '15%';
         }
     }
 }
@@ -105,7 +105,7 @@ const autoResize = () => {
         <div class="relative max-h-screen overflow-hidden">
             <div class="flex flex-col justify-between h-screen">
                 <div v-if="fullChat.length > 0"
-                    :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default min-h-[80vh] max-h-[80vh] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
+                    :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default min-h-[80%] max-h-[80%] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
                     <div class=" flex flex-col justify-center">
                         <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
                             <div
@@ -139,7 +139,7 @@ const autoResize = () => {
                         <div class="flex rounded border relative  w-full overflow-auto ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
                                 @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
-                                class=" border max-h-[10vh] sm:max-h-none  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
+                                class=" border max-h-[10%] sm:max-h-none  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
                                 style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
                             <svg-icon @click="send" color="red" size="36"
                                 :class="{ 'self-center text-white w-[80px] mr-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
