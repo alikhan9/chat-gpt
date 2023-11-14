@@ -96,7 +96,7 @@ const autoResize = () => {
             <div class="flex flex-col">
                 <div class="min-h-[76vh]">
                     <div v-if="fullChat.length > 0"
-                        :class="{ 'pb-36 mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default max-h-[76vh] min-h-[76vh] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
+                        :class="{ 'pb-36 mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default h-[70vh] sm:h-[76vh] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
                         <div class=" flex flex-col justify-center">
                             <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
                                 <div
@@ -125,10 +125,10 @@ const autoResize = () => {
                         </div>
                     </div>
                 </div>
-                <div class=" px-4 w-full gap-4 flex bottom-0 py-4 bg-[hsl(0,0%,10%)] h-[20vh] sm:h-[23vh]"
+                <div class=" px-4 w-full gap-4 flex bottom-0 py-4 bg-[hsl(0,0%,10%)] h-[15vh] sm:h-[23vh]"
                     :aria-disabled="enableInput">
                     <div class="flex gap-4 w-full items-end mx-4 sm:mx-0 ">
-                        <div class="flex rounded border relative  w-full overflow-auto max-h-[400px] ">
+                        <div class="flex rounded border relative  w-full overflow-auto max-h-[150px] sm:max-h-[400px] ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
                                 @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
                                 class=" border  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
