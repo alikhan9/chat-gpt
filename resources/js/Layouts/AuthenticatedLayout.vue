@@ -69,8 +69,8 @@ const sendCreateRoom = () => {
 
 const sendDeleteRoom = (roomId) => {
     router.delete("/chat-rooms/" + roomId, {}, {
-        preserveScroll:true,
-        preserveState:true
+        preserveScroll: true,
+        preserveState: true
     });
 }
 
@@ -113,9 +113,9 @@ const toggleMenu = () => {
 </script>
 
 <template>
-    <div class="h-full sm:h-full bg-[hsl(0,0%,10%)]">
+    <div class=" bg-[hsl(0,0%,10%)]">
         <div v-if="width > 640 ? false : true"
-            class="fixed top-0 p-2 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]">
+            :class="{ 'fixed top-0 p-2 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]': true, 'hidden': showMenu }">
             <svg-icon @click="toggleMenu" type="mdi" class="text-white hover:cursor-pointer" size="32"
                 :path="mdiMenu"></svg-icon>
             <div class="text-white text-lg">
@@ -125,9 +125,9 @@ const toggleMenu = () => {
                 :path="mdiPlus"></svg-icon>
         </div>
         <div v-if="width > 640 ? true : showMenu"
-            class=" bg-[hsl(0,0%,5%)] text-white z-50 lg:w-[300px] sm:w-[250px] w-screen fixed h-full">
-            <div class=" lg:p-4 mt-2 p-4">
-                <div class="flex gap-2 sm:mr-0">
+            class=" bg-[hsl(0,0%,5%)] text-white text-xs sm:text-base lg:w-[300px] sm:w-[250px] p-2">
+            <div class="flex flex-col h-screen lg:p-4 p-4">
+                <div class="flex gap-2">
                     <PrimaryButton @click="sendCreateRoom"
                         class="w-full text-start border p-2 flex border-[hsl(0,0%,25%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                         <svg-icon type="mdi" :path="mdiPlus"></svg-icon>
@@ -136,7 +136,7 @@ const toggleMenu = () => {
                     <PrimaryButton class="w-full border-[hsl(0,0%,20%)] hover:border-white sm:hidden" @click="toggleMenu">
                         Fermer</PrimaryButton>
                 </div>
-                <div class="max-h-[60vh] min-h-[60vh]  overflow-auto scrollbar-hide md:scrollbar-default">
+                <div class="flex-col flex-1 overflow-auto scrollbar-hide md:scrollbar-default">
                     <div v-for="( room, index ) in  chatRooms " :key="index">
                         <div
                             :class="{ 'flex items-center p-2 rounded mt-2': true, 'bg-[hsl(0,0%,30%)]': room.id === activeChatRoom?.id }">
@@ -173,11 +173,12 @@ const toggleMenu = () => {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div
+                    class="shrink-0 bg-[hsl(0,0%,5%)]">
                     <div class="mb-4">
-                        <div class="font-bold text-xl">Model</div>
+                        <div class="font-bold text-base sm:text-xl">Model</div>
                         <select v-on:change="sendUpdateChatSettings"
-                            class="bg-[hsl(0,0%,20%)] text-white border-none rounded focus:ring-0 focus:outline-none"
+                            class="bg-[hsl(0,0%,20%)] text-white border-none text-xs sm:text-base w-full rounded focus:ring-0 focus:outline-none"
                             v-model="chatSettings.model">
                             <option class="text-center" v-for=" model  in  models ">
                                 {{ model.name }}
@@ -185,15 +186,15 @@ const toggleMenu = () => {
                         </select>
                     </div>
                     <div class="mb-4">
-                        <div class="font-bold text-xl">Température</div>
+                        <div class="font-bold  text-base sm:text-xl">Température</div>
                         <div class="flex items-center justify-between">
                             <input v-on:change="sendUpdateChatSettings" v-model="chatSettings.temperature" class="w-[80%]"
                                 type="range" min="0" max="2" step="0.1" />
-                            <div class="text-lg">{{ chatSettings.temperature }}</div>
+                            <div class="text-base sm:text-lg">{{ chatSettings.temperature }}</div>
                         </div>
                     </div>
                     <PrimaryButton href="/logout" method="POST" type="link"
-                        class="min-w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
+                        class="w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                         <svg-icon type="mdi" :path="mdiLogout"></svg-icon>
                         <div>Se déconnecter</div>
                     </PrimaryButton>
@@ -201,7 +202,7 @@ const toggleMenu = () => {
             </div>
         </div>
 
-        <div class="sm:ml-[250px] lg:ml-[300px] z-0 relative">
+        <div :class="{ 'sm:ml-[250px] lg:ml-[300px] relative': true, 'hidden sm:block': showMenu }">
             <slot />
         </div>
     </div>
