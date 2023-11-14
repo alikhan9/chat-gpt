@@ -110,7 +110,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
-    <div class="h-full sm:h-screen bg-[hsl(0,0%,10%)]">
+    <div class="h-full sm:h-full bg-[hsl(0,0%,10%)]">
         <div v-if="width > 640 ? false : true"
             class="fixed top-0 p-2 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]">
             <svg-icon @click="toggleMenu" type="mdi" class="text-white hover:cursor-pointer" size="32"
@@ -124,7 +124,7 @@ const toggleMenu = () => {
 
 
         <div v-if="width > 640 ? true : showMenu"
-            class=" bg-[hsl(0,0%,5%)] text-white z-50 shadow flex justify-between lg:w-[300px] sm:w-[250px] w-screen flex-col fixed h-screen">
+            class=" bg-[hsl(0,0%,5%)] text-white z-50 shadow flex justify-between lg:w-[300px] sm:w-[250px] w-screen flex-col fixed h-full">
             <div class=" lg:p-4 mt-2">
                 <div class="flex gap-2 mx-2 sm:mr-0">
                     <PrimaryButton @click="sendCreateRoom"
