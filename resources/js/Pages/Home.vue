@@ -91,48 +91,58 @@ const autoResize = () => {
 
 <template>
     <Head title="ChatGpt" />
-    <div class="text-white flex justify-center">
-        <div class=" min-h-[98vh] relative w-full">
-            <div>
-                <div class="mx-auto min-w-full gap-4 fixed bottom-0 py-4 bg-[hsl(0,0%,10%)] z-50  max-h-[500px]"
+    <div class="text-white">
+        <div class=" min-h-[98vh] relative">
+            <div class="flex flex-col">
+                <div class="min-h-[76vh]">
+                    <div v-if="fullChat.length > 0"
+                        :class="{ 'pb-36 mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default max-h-[76vh] min-h-[76vh] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
+                        <div class=" flex flex-col justify-center">
+                            <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
+                                <div
+                                    :class="{ 'bg-[hsl(0,0%,15%)]': !item.role == 'assistant', 'bg-[hsl(0,0%,30%)]': item.role == 'assistant' }">
+                                    <div v-if="item.role == 'assistant'" class="p-2 rounded">
+                                        <div class="flex items-start justify-center gap-4">
+                                            <svg-icon type="mdi" :path="mdiRobot" size="32"
+                                                class="min-w-[10%] text-red-500"></svg-icon>
+                                            <div class="w-full">
+                                                {{ item.content }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else class="rounded min-w-full p-2">
+                                        <div class="flex items-start justify-center gap-4">
+                                            <svg-icon type="mdi" size="32" :path="mdiAlphaABox"
+                                                class="min-w-[10%] text-green-500">
+                                            </svg-icon>
+                                            <div class="w-full">
+                                                {{ item.content }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" px-4 w-full gap-4 flex bottom-0 py-4 bg-[hsl(0,0%,10%)] h-[20vh] sm:h-[23vh]"
                     :aria-disabled="enableInput">
-                    <div class="flex gap-4 justify-center w-[80vw] relative">
-                        <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
-                            @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
-                            class="min-w-[60vw] border overflow-auto rounded focus:ring-0  bg-transparent "
-                            style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
-                        <svg-icon @click="send" color="red" size="36"
-                            :class="{ 'self-center text-white w-[80px] p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
-                            type="mdi" :path="mdiSend">
-                        </svg-icon>
+                    <div class="flex gap-4 w-full items-end mx-4 sm:mx-0 ">
+                        <div class="flex rounded border relative  w-full overflow-auto max-h-[400px] ">
+                            <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
+                                @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
+                                class=" border  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
+                                style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
+                            <svg-icon @click="send" color="red" size="36"
+                                :class="{ 'self-center text-white w-[80px] mr-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
+                                type="mdi" :path="mdiSend">
+                            </svg-icon>
+                        </div>
                         <div v-if="currentStream"
                             class="absolute flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)] -top-16 right-28 rounded border px-3 py-1"
                             @click="stopStream">
                             <SvgIcon type="mdi" :path="mdiStop" size="32" />
                             Stop
-                        </div>
-                    </div>
-                </div>
-                <div v-if="fullChat.length > 0" class="overflow-auto flex flex-col mt-2 justify-center mb-60 border-b pb-6">
-                    <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
-                        <div
-                            :class="{ 'bg-[hsl(0,0%,15%)] p-4': !item.role == 'assistant', 'bg-[hsl(0,0%,30%)] p-4': item.role == 'assistant' }">
-                            <div v-if="item.role == 'assistant'" class=" min-w-full p-2 rounded">
-                                <div class="flex items-center">
-                                    <svg-icon type="mdi" :path="mdiRobot" class="min-w-[5%] text-red-500"></svg-icon>
-                                    <div>
-                                        {{ item.content }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-else class="rounded min-w-full p-4">
-                                <div class="flex items-center">
-                                    <svg-icon type="mdi" :path="mdiAlphaABox" class="min-w-[5%] text-green-500"></svg-icon>
-                                    <div>
-                                        {{ item.content }}
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
