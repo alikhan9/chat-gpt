@@ -82,30 +82,23 @@ const stopStream = () => {
 
 const autoResize = () => {
     textAreaReff.value.style.height = 'auto';
-    if(height.value > 895){
-        if (textAreaReff.value.scrollHeight <= 200) {
-            textAreaReff.value.style.height = textAreaReff.value.scrollHeight - 38 + 'px';
-        } else {
-            textAreaReff.value.style.height = '180px';
-        }
-    }else {
-        if (textAreaReff.value.scrollHeight <= 200) {
-            textAreaReff.value.style.height = textAreaReff.value.scrollHeight - 38 + 'px';
-        } else {
-            textAreaReff.value.style.height = '15%';
-        }
+    if (textAreaReff.value.scrollHeight <= 200) {
+        textAreaReff.value.style.height = textAreaReff.value.scrollHeight - 38 + 'px';
+    } else {
+        textAreaReff.value.style.height = '180px';
     }
+
 }
 
 </script>
 
 <template>
     <Head title="ChatGpt" />
-    <div class="text-white">
-        <div class="relative max-h-screen overflow-hidden">
-            <div class="flex flex-col justify-between h-screen">
-                <div v-if="fullChat.length > 0"
-                    :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default min-h-[80%] max-h-[80%] border-b overflow-x-hidden overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
+    <div class="text-white h-full">
+        <div class="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex-1 h-full" v-if="fullChat.length > 0"
+                    :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default border-b overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
                     <div class=" flex flex-col justify-center">
                         <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
                             <div
@@ -133,16 +126,15 @@ const autoResize = () => {
                         </div>
                     </div>
                 </div>
-                <div class=" sm:px-4 w-full mb-2 sm:flex sm:py-4 bg-[hsl(0,0%,10%)] h-full"
-                    :aria-disabled="enableInput">
+                <div class="shrink-0 sm:px-4 w-full mb-2 sm:flex sm:py-4 bg-[hsl(0,0%,10%)]" :aria-disabled="enableInput">
                     <div class="sm:flex gap-4 w-full items-end sm:mx-0 ">
                         <div class="flex rounded border relative  w-full overflow-auto ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
                                 @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
-                                class=" border max-h-[10%] sm:max-h-none  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
+                                class=" border max-h-[10%] sm:max-h-none p-2  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
                                 style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
                             <svg-icon @click="send" color="red" size="36"
-                                :class="{ 'self-center text-white w-[80px] mr-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
+                                :class="{ 'self-center text-white w-[80px] mx-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
                                 type="mdi" :path="mdiSend">
                             </svg-icon>
                         </div>

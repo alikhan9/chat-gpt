@@ -113,9 +113,9 @@ const toggleMenu = () => {
 </script>
 
 <template>
-    <div class=" bg-[hsl(0,0%,10%)] fixed inset-0">
+    <div class=" bg-[hsl(0,0%,10%)] fixed flex inset-0">
         <div v-if="width > 640 ? false : true"
-            :class="{ 'fixed top-0 p-2 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]': true, 'hidden': showMenu }">
+            :class="{ 'fixed top-0 p-5 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]': true, 'hidden': showMenu }">
             <svg-icon @click="toggleMenu" type="mdi" class="text-white hover:cursor-pointer" size="32"
                 :path="mdiMenu"></svg-icon>
             <div class="text-white text-lg">
@@ -125,7 +125,7 @@ const toggleMenu = () => {
                 :path="mdiPlus"></svg-icon>
         </div>
         <div v-if="width > 640 ? true : showMenu"
-            class=" bg-[hsl(0,0%,5%)] h-full text-white text-xs sm:text-base lg:w-[300px] sm:w-[250px] p-2">
+            class=" bg-[hsl(0,0%,5%)] shrink-0 h-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
             <div class="flex flex-col h-full lg:p-4 p-4">
                 <div class="flex gap-2">
                     <PrimaryButton @click="sendCreateRoom"
@@ -143,27 +143,27 @@ const toggleMenu = () => {
                             <Link href="/" :class="{ 'hidden': room.id == activeChatRoom.id }" :data="{ chatRoom: room.id }"
                                 class="flex gap-4 items-center  min-w-[80%]">
                             <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                            <div :class="{ 'min-w-[80%]': true, 'hidden': editRoomName }">{{ room.name }}</div>
+                            <div :class="{ 'min-w-[80%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">{{ room.name }}</div>
                             <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
-                                :class="{ 'min-w-[80%]  p-0 m-0 border-none bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
+                                :class="{ 'min-w-[80%] text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }" />
                             </Link>
                             <div
                                 :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex gap-4 items-center  min-w-[80%]': true }">
                                 <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                                <div :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName }">{{ room.name }}
+                                <div :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">{{ room.name }}
                                 </div>
                                 <input ref="nameDiv" @keydown.enter="sendUpdateRoomName"
-                                    :class="{ 'min-w-[80%]  p-0 m-0 border-none bg-transparent text-white focus:ring-0 focus:outline-none ': true, 'hidden': !editRoomName }"
+                                    :class="{ 'min-w-[80%]  text-xs sm:text-base  p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none ': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }"
                                     v-model="roomToEdit.name" />
                             </div>
-                            <div class="relative w-[20%] h-full">
+                            <div v-if="room.id == activeChatRoom.id" class="relative min-w-[80px] h-full">
                                 <div v-if="!editRoomName" class="absolute -top-[11px] flex items-center gap-2">
                                     <svg-icon @click="() => editRoom(room)" class="hover:cursor-pointer" type="mdi"
                                         size="20" :path="mdiFileEditOutline"></svg-icon>
                                     <svg-icon class="hover:cursor-pointer" @click="() => sendDeleteRoom(room.id)" type="mdi"
                                         size="20" :path="mdiDeleteOutline"></svg-icon>
                                 </div>
-                                <div v-else class="absolute -top-[11px] flex items-center gap-2">
+                                <div v-else class="absolute min-w-[80px] -top-[11px] flex items-center gap-2">
                                     <svg-icon @click="sendUpdateRoomName" class="hover:cursor-pointer" type="mdi" size="20"
                                         :path="mdiCheckBold"></svg-icon>
                                     <svg-icon @click="closeEditRoom" class="hover:cursor-pointer" type="mdi" size="20"
@@ -201,8 +201,7 @@ const toggleMenu = () => {
                 </div>
             </div>
         </div>
-
-        <div :class="{ 'sm:ml-[250px] lg:ml-[300px] relative': true, 'hidden sm:block': showMenu }">
+        <div :class="{ 'h-full': true, 'hidden sm:block': showMenu }">
             <slot />
         </div>
     </div>
