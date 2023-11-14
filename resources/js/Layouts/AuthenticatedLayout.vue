@@ -110,7 +110,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
-    <div class="h-screen bg-[hsl(0,0%,10%)]">
+    <div class="h-full sm:h-screen bg-[hsl(0,0%,10%)]">
         <div v-if="width > 640 ? false : true"
             class="fixed top-0 p-2 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]">
             <svg-icon @click="toggleMenu" type="mdi" class="text-white hover:cursor-pointer" size="32"

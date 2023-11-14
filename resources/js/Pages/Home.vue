@@ -139,7 +139,7 @@ const autoResize = () => {
                         <div class="flex rounded border relative  w-full overflow-auto ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
                                 @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
-                                class=" border max-h-[10vh]  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
+                                class=" border max-h-[10vh] sm:max-h-none  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
                                 style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
                             <svg-icon @click="send" color="red" size="36"
                                 :class="{ 'self-center text-white w-[80px] mr-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
