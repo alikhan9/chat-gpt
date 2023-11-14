@@ -135,7 +135,7 @@ const toggleMenu = () => {
                     <PrimaryButton class="w-full border-[hsl(0,0%,20%)] hover:border-white sm:hidden" @click="toggleMenu">
                         Fermer</PrimaryButton>
                 </div>
-                <div class="max-h-[70vh] overflow-auto overflow-x-hidden scrollbar-hide md:scrollbar-default">
+                <div class="max-h-[70%] overflow-auto overflow-x-hidden scrollbar-hide md:scrollbar-default">
                     <div v-for="( room, index ) in  chatRooms " :key="index">
                         <div
                             :class="{ 'flex items-center p-2 rounded mt-2': true, 'bg-[hsl(0,0%,30%)]': room.id === activeChatRoom?.id }">
