@@ -125,7 +125,7 @@ const toggleMenu = () => {
                 :path="mdiPlus"></svg-icon>
         </div>
         <div v-if="width > 640 ? true : showMenu"
-            class=" bg-[hsl(0,0%,5%)] shrink-0 h-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
+            class=" bg-[hsl(0,0%,5%)] shrink-0 h-full w-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
             <div class="flex flex-col h-full lg:p-4 p-4">
                 <div class="flex gap-2">
                     <PrimaryButton @click="sendCreateRoom"
