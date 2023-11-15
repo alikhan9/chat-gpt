@@ -16,7 +16,6 @@ class ChatRoomsController extends Controller
         ]);
 
         Chatroom::create($result);
-
         return Inertia::location('/');
     }
 

@@ -90,11 +90,8 @@ const sendUpdateRoomName = () => {
 
 const editRoom = room => {
     editRoomName.value = true;
-    if (activeChatRoom.value.id !== room.id)
-        nameLink.value[0].focus();
-    else
-        nameDiv.value[0].focus();
     roomToEdit.value = { ...room };
+    nameLink.value[0].focus();
 }
 
 const closeEditRoom = () => {
@@ -127,7 +124,7 @@ const toggleMenu = () => {
 <template>
     <Transition>
         <div class=" bg-[hsl(0,0%,10%)] fixed flex inset-0">
-            <div v-if="width > 640 ? false : true"
+            <div v-if="width > 1024 ? false : true"
                 :class="{ 'fixed top-0 p-5 left-0 z-50 justify-between h-[40px] items-center flex w-full bg-[hsl(0,0%,30%)]': true, 'hidden': showMenu }">
                 <svg-icon @click="toggleMenu" type="mdi" class="text-white hover:cursor-pointer" size="32"
                     :path="mdiMenu"></svg-icon>
@@ -138,8 +135,8 @@ const toggleMenu = () => {
                     :path="mdiPlus"></svg-icon>
             </div>
             <Transition name="slide">
-                <div v-if="width > 640 ? true : showMenu"
-                    class=" bg-[hsl(0,0%,5%)] z-50 h-full w-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
+                <div v-if="width > 1024 ? true : showMenu"
+                    class=" bg-[hsl(0,0%,5%)] z-50 h-full w-full shrink-0 text-white text-xs sm:text-base lg:w-[320px] p-2">
                     <div class="flex flex-col h-full lg:p-4 p-4">
                         <div class="flex gap-2">
                             <PrimaryButton @click="sendCreateRoom"
@@ -147,44 +144,45 @@ const toggleMenu = () => {
                                 <svg-icon type="mdi" :path="mdiPlus"></svg-icon>
                                 <div>Nouveau Chat</div>
                             </PrimaryButton>
-                            <PrimaryButton class="w-full border-[hsl(0,0%,20%)] hover:border-white sm:hidden"
+                            <PrimaryButton class="w-full border-[hsl(0,0%,20%)] hover:border-white lg:hidden"
                                 @click="toggleMenu">
                                 Fermer</PrimaryButton>
                         </div>
-                        <div class="flex-col flex-1 overflow-auto scrollbar-hide md:scrollbar-default">
+                        <div class="flex-col flex-1 overflow-auto overflow-x-hidden scrollbar-hide md:scrollbar-default">
                             <div v-for="( room, index ) in  chatRooms " :key="index">
                                 <div
-                                    :class="{ 'flex items-center p-2 rounded mt-2': true, 'bg-[hsl(0,0%,30%)]': room.id === activeChatRoom?.id }">
-                                    <Link href="/" :class="{ 'hidden': room.id == activeChatRoom.id }"
+                                    :class="{ 'flex items-center p-2 rounded mt-2 w-full': true, 'bg-[hsl(0,0%,30%)]': room.id === activeChatRoom?.id }">
+                                    <Link href="/" v-if="room.id !== activeChatRoom.id"
                                         @click="() => showMenu ? toggleMenu() : null" :data="{ chatRoom: room.id }"
                                         class="flex gap-4 items-center  min-w-[80%]">
-                                    <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
+                                    <div>
+                                        <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
+                                    </div>
                                     <div
-                                        :class="{ 'min-w-[80%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">
+                                        :class="{ 'min-w-[60%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">
                                         {{
                                             room.name }}</div>
                                     <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
-                                        :class="{ 'min-w-[80%] text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }" />
+                                        :class="{ 'text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
                                     </Link>
                                     <div
-                                        :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex gap-4 items-center  min-w-[80%]': true }">
-                                        <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                                        <div
-                                            :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">
+                                        :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex pr-4 gap-4 items-center sm:max-w-[250px] grow': true }">
+                                        <div>
+                                            <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
+                                        </div>
+                                        <div :class="{ 'truncate': true }">
                                             {{ room.name }}
                                         </div>
-                                        <input ref="nameDiv" @keydown.enter="sendUpdateRoomName"
-                                            :class="{ 'min-w-[80%]  text-xs sm:text-base  p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none ': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }"
-                                            v-model="roomToEdit.name" />
                                     </div>
-                                    <div v-if="room.id == activeChatRoom.id" class="relative min-w-[80px] h-full">
+                                    <div v-if="room.id == activeChatRoom.id" class="relative shrink-0 w-[50px] h-full">
                                         <div v-if="!editRoomName" class="absolute -top-[11px] flex items-center gap-2">
                                             <svg-icon @click="() => editRoom(room)" class="hover:cursor-pointer" type="mdi"
                                                 size="20" :path="mdiFileEditOutline"></svg-icon>
                                             <svg-icon class="hover:cursor-pointer" @click="() => sendDeleteRoom(room.id)"
                                                 type="mdi" size="20" :path="mdiDeleteOutline"></svg-icon>
                                         </div>
-                                        <div v-else class="absolute min-w-[80px] -top-[11px] flex items-center gap-2">
+                                        <div v-else
+                                            class="absolute min-w-[80px] shrink-0 -top-[11px] flex items-center gap-2">
                                             <svg-icon @click="sendUpdateRoomName" class="hover:cursor-pointer" type="mdi"
                                                 size="20" :path="mdiCheckBold"></svg-icon>
                                             <svg-icon @click="closeEditRoom" class="hover:cursor-pointer" type="mdi"
@@ -232,12 +230,11 @@ const toggleMenu = () => {
 </template>
 
 <style>
-.slide-enter-active {
+.slide-enter-active,
+.slide-reverse-enter-active,
+.slide-leave-active,
+.slide-reverse-leave-active {
     transition: all 0.3s ease-in-out;
-}
-
-.slide-leave-active {
-    transition: all 0.3s ease-in;
 }
 
 .slide-enter-from,
@@ -245,14 +242,6 @@ const toggleMenu = () => {
     transform: translateX(-100vw);
 }
 
-.slide-reverse-leave-active {
-    transition: all 0.3s ease-in;
-}
-
-
-.slide-reverse-enter-active {
-    transition: all 0.3s ease-in-out;
-}
 
 .slide-reverse-enter-from,
 .slide-reverse-leave-to {
