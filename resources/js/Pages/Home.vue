@@ -125,9 +125,14 @@ const autoResize = () => {
                             </div>
                         </div>
                     </div>
+                    <div v-if="currentStream" class="sticky  bottom-0 max-w-[100px] float-right mr-10  flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)]  rounded border px-3 py-1"
+                        @click="stopStream">
+                        <SvgIcon type="mdi" :path="mdiStop" size="32" />
+                        Stop
+                    </div>
                 </div>
                 <div class="shrink-0 sm:px-4 w-full mb-2 sm:flex sm:py-4 bg-[hsl(0,0%,10%)]" :aria-disabled="enableInput">
-                    <div class="sm:flex gap-4 w-full items-end sm:mx-0 ">
+                    <div class="sm:flex gap-4 w-full relative items-end sm:mx-0 ">
                         <div class="flex rounded border relative  w-full overflow-auto ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
                                 @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
@@ -137,12 +142,6 @@ const autoResize = () => {
                                 :class="{ 'self-center text-white w-[80px] mx-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
                                 type="mdi" :path="mdiSend">
                             </svg-icon>
-                        </div>
-                        <div v-if="currentStream"
-                            class="absolute flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)] -top-16 right-28 rounded border px-3 py-1"
-                            @click="stopStream">
-                            <SvgIcon type="mdi" :path="mdiStop" size="32" />
-                            Stop
                         </div>
                     </div>
                 </div>
