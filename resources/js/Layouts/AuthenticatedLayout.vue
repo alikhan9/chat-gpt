@@ -48,7 +48,6 @@ onMounted(() => {
     chatSettings.value = usePage().props.chat.chatSettings;
 })
 
-
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     if (newValue) {
         activeChatRoom.value = { id: newValue.id, name: newValue.name };
@@ -64,7 +63,9 @@ watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
 });
 
 const sendCreateRoom = () => {
-    router.post('/chat-rooms', { user_id: user.id, name: 'New Chat Room' }, {});
+    router.post('/chat-rooms', { user_id: user.id, name: 'New Chat Room' }, {
+        preserveState:true,
+    });
 }
 
 const sendDeleteRoom = (roomId) => {

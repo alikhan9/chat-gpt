@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
-    Route::get('/', [ChatController::class, 'home']);
+    Route::get('/', [ChatController::class, 'home'])->name('home');
     Route::post('/chat-rooms', [ChatRoomsController::class, 'store']);
     Route::post('/message', [MessageController::class,'store']);
     Route::delete('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'destroy']);

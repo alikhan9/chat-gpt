@@ -36,7 +36,13 @@ const chatRoom = ref(null);
 const enableInput = ref(false);
 const textAreaReff = ref()
 const currentStream = ref(null);
-const { height } = useWindowSize()
+
+watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
+    if (newValue) {
+        chatRoom.value = { id: newValue.id, name: newValue.name };
+        fullChat.value = newValue.messages.map(c => { return { content: c.content, role: c.role } });
+    }
+});
 
 
 const saveInDatabase = (role, content) => {
@@ -125,7 +131,8 @@ const autoResize = () => {
                             </div>
                         </div>
                     </div>
-                    <div v-if="currentStream" class="sticky  bottom-0 max-w-[100px] float-right mr-10  flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)]  rounded border px-3 py-1"
+                    <div v-if="currentStream"
+                        class="sticky  bottom-0 max-w-[100px] float-right mr-10  flex items-center hover:cursor-pointer hover:scale-105 hover:animate-none active:animate-ping animate-pulse border-[hsl(0,0%,70%)]  rounded border px-3 py-1"
                         @click="stopStream">
                         <SvgIcon type="mdi" :path="mdiStop" size="32" />
                         Stop
