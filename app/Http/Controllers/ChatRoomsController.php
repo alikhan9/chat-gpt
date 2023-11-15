@@ -21,16 +21,22 @@ class ChatRoomsController extends Controller
 
     public function destroy(ChatRoom $chatRoom)
     {
-        if($chatRoom->userId != auth()->id()) {
+        if($chatRoom->user_id != auth()->id()) {
             return;
         }
         $chatRoom->delete();
         return redirect()->route('home');
     }
 
+    public function destroyAll(ChatRoom $chatRoom)
+    {
+        auth()->user()->chatRooms()->delete();
+        return redirect()->route('home');
+    }
+
     public function update(ChatRoom $chatRoom, Request $request)
     {
-        if($chatRoom->userId != auth()->id()) {
+        if($chatRoom->user_id != auth()->id()) {
             return;
         }
         $chatRoom->update(['name' => $request->name]);

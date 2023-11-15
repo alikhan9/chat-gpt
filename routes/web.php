@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [ChatController::class, 'home'])->name('home');
     Route::post('/chat-rooms', [ChatRoomsController::class, 'store']);
     Route::post('/message', [MessageController::class,'store']);
+    Route::delete('/chat-rooms/all', [ChatRoomsController::class,'destroyAll']);
     Route::delete('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'destroy']);
     Route::put('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'update']);
     Route::put('chat-settings', [ChatSettingsController::class, 'update']);

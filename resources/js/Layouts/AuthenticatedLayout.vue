@@ -1,6 +1,6 @@
 <script setup>
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiPlus, mdiLogout, mdiMessageOutline, mdiFileEditOutline, mdiDeleteOutline, mdiCheckBold, mdiClose, mdiMenu } from '@mdi/js'
+import { mdiPlus, mdiLogout, mdiMessageOutline, mdiFileEditOutline, mdiDeleteOutline, mdiCheckBold, mdiClose, mdiMenu, mdiVacuum } from '@mdi/js'
 import { Link, router, usePage } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { onMounted, ref, watch } from 'vue';
@@ -15,6 +15,7 @@ const chatSettings = ref({});
 const chatRooms = ref([]);
 const activeChatRoom = ref(null);
 const showMenu = ref(false);
+const valideDeleteAllChats = ref(false);
 const showContent = ref(true);
 const { width } = useWindowSize()
 const models = ref([
@@ -75,6 +76,13 @@ const sendDeleteRoom = (roomId) => {
     });
 }
 
+const sendDeleteAllRooms = () => {
+    router.delete("/chat-rooms/all", {}, {
+        preserveScroll: true,
+        preserveState: true
+    });
+}
+
 
 const sendUpdateRoomName = () => {
     router.put('/chat-rooms/' + roomToEdit.value.id, { name: roomToEdit.value.name }, {
@@ -91,7 +99,6 @@ const sendUpdateRoomName = () => {
 const editRoom = room => {
     editRoomName.value = true;
     roomToEdit.value = { ...room };
-    // console.log(nameLink.value);
     setTimeout(() => {
 
         nameLink.value[0].focus();
@@ -120,7 +127,10 @@ const toggleMenu = () => {
             showMenu.value = true;
         }, 300);
     }
+}
 
+const toggleDeleteChats = () => {
+    valideDeleteAllChats.value = !valideDeleteAllChats.value;
 }
 
 </script>
@@ -215,6 +225,25 @@ const toggleMenu = () => {
                                     <div class="text-base sm:text-lg">{{ chatSettings.temperature }}</div>
                                 </div>
                             </div>
+                            <PrimaryButton v-if="!valideDeleteAllChats" @click="toggleDeleteChats"
+                                class="w-full text-start border p-2 mb-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
+                                <svg-icon type="mdi" :path="mdiVacuum"></svg-icon>
+                                <div>Supprimer Chats</div>
+                            </PrimaryButton>
+                            <PrimaryButton v-else
+                                class="w-full text-start border h-[41.6px] p-1 mb-2 flex bg-red-700 text-white rounded gap-2 items-center hover:border-red-900 fade transition hover:scale-[1.01]">
+                                <div class="w-full">Confirmez</div>
+                                <div class="flex items-center gap-4">
+                                    <div class="hover:bg-red-500 rounded-full p-1">
+                                        <svg-icon @click="sendDeleteAllRooms" class="hover:cursor-pointer" type="mdi"
+                                            size="20" :path="mdiCheckBold"></svg-icon>
+                                    </div>
+                                    <div class="hover:bg-red-500 rounded-full p-1">
+                                        <svg-icon @click="toggleDeleteChats" class="hover:cursor-pointer" type="mdi"
+                                            size="20" :path="mdiClose"></svg-icon>
+                                    </div>
+                                </div>
+                            </PrimaryButton>
                             <PrimaryButton href="/logout" method="POST" type="link"
                                 class="w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                                 <svg-icon type="mdi" :path="mdiLogout"></svg-icon>
