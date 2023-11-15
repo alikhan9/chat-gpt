@@ -41,6 +41,9 @@ watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     if (newValue) {
         chatRoom.value = { id: newValue.id, name: newValue.name };
         fullChat.value = newValue.messages.map(c => { return { content: c.content, role: c.role } });
+    } else {
+        chatRoom.value = null;
+        fullChat.value = [];
     }
 });
 
@@ -50,7 +53,7 @@ const saveInDatabase = (role, content) => {
 }
 
 const send = async () => {
-    if (message.value.length == 0 || chatRoom.value == null)
+    if (message.value.length == 0)
         return;
     const mes = message.value;
     enableInput.value = true;
