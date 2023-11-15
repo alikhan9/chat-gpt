@@ -85,6 +85,8 @@ const sendUpdateRoomName = () => {
             roomToEdit.value = { name: '', id: '' };
         }
     });
+    if (showMenu.value)
+        toggleMenu();
 }
 
 const editRoom = room => {
@@ -143,14 +145,17 @@ const toggleMenu = () => {
                             <Link href="/" :class="{ 'hidden': room.id == activeChatRoom.id }" :data="{ chatRoom: room.id }"
                                 class="flex gap-4 items-center  min-w-[80%]">
                             <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                            <div :class="{ 'min-w-[80%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">{{ room.name }}</div>
+                            <div :class="{ 'min-w-[80%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">{{
+                                room.name }}</div>
                             <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
                                 :class="{ 'min-w-[80%] text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }" />
                             </Link>
                             <div
                                 :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex gap-4 items-center  min-w-[80%]': true }">
                                 <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
-                                <div :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">{{ room.name }}
+                                <div
+                                    :class="{ 'min-w-[80%] truncate': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">
+                                    {{ room.name }}
                                 </div>
                                 <input ref="nameDiv" @keydown.enter="sendUpdateRoomName"
                                     :class="{ 'min-w-[80%]  text-xs sm:text-base  p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none ': true, 'hidden': !editRoomName || room.id !== activeChatRoom.id }"
@@ -173,8 +178,7 @@ const toggleMenu = () => {
                         </div>
                     </div>
                 </div>
-                <div
-                    class="shrink-0 bg-[hsl(0,0%,5%)]">
+                <div class="shrink-0 bg-[hsl(0,0%,5%)]">
                     <div class="mb-4">
                         <div class="font-bold text-base sm:text-xl">Model</div>
                         <select v-on:change="sendUpdateChatSettings"
@@ -201,7 +205,7 @@ const toggleMenu = () => {
                 </div>
             </div>
         </div>
-        <div :class="{ 'h-full': true, 'hidden sm:block': showMenu }">
+        <div :class="{ 'h-full w-full': true, 'hidden sm:block': showMenu }">
             <slot />
         </div>
     </div>

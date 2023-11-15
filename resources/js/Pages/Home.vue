@@ -97,9 +97,9 @@ const autoResize = () => {
     <div class="text-white h-full">
         <div class="h-full">
             <div class="flex flex-col h-full">
-                <div class="flex-1 h-full" v-if="fullChat.length > 0"
+                <div class="flex-1 h-full"
                     :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default border-b overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
-                    <div class=" flex flex-col justify-center">
+                    <div class=" flex flex-col justify-center w-full">
                         <div class="mb-2" v-for="(item, index) in fullChat" :key="index">
                             <div
                                 :class="{ 'bg-[hsl(0,0%,15%)]': !item.role == 'assistant', 'bg-[hsl(0,0%,30%)]': item.role == 'assistant' }">
