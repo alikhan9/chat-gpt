@@ -10,7 +10,6 @@ import { useWindowSize } from '@vueuse/core'
 const user = usePage().props.auth.user;
 const roomToEdit = ref({ name: '', id: '' });
 const editRoomName = ref(false);
-const nameDiv = ref(null);
 const nameLink = ref(null);
 const chatSettings = ref({});
 const chatRooms = ref([]);
@@ -91,7 +90,11 @@ const sendUpdateRoomName = () => {
 const editRoom = room => {
     editRoomName.value = true;
     roomToEdit.value = { ...room };
-    nameLink.value[0].focus();
+    // console.log(nameLink.value);
+    setTimeout(() => {
+
+        nameLink.value[0].focus();
+    },100);
 }
 
 const closeEditRoom = () => {
@@ -162,17 +165,17 @@ const toggleMenu = () => {
                                         :class="{ 'min-w-[60%]': true, 'hidden': editRoomName && room.id == activeChatRoom.id }">
                                         {{
                                             room.name }}</div>
-                                    <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
-                                        :class="{ 'text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
                                     </Link>
-                                    <div
+                                    <div v-else
                                         :class="{ 'hidden': room.id !== activeChatRoom.id, 'flex pr-4 gap-4 items-center sm:max-w-[250px] grow': true }">
                                         <div>
                                             <svg-icon type="mdi" size="20" :path="mdiMessageOutline"></svg-icon>
                                         </div>
-                                        <div :class="{ 'truncate': true }">
+                                        <div :class="{ 'truncate': true,'hidden': editRoomName }">
                                             {{ room.name }}
                                         </div>
+                                        <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
+                                        :class="{ 'text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
                                     </div>
                                     <div v-if="room.id == activeChatRoom.id" class="relative shrink-0 w-[50px] h-full">
                                         <div v-if="!editRoomName" class="absolute -top-[11px] flex items-center gap-2">
