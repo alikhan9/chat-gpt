@@ -16,6 +16,7 @@ const chatSettings = ref({});
 const chatRooms = ref([]);
 const activeChatRoom = ref(null);
 const showMenu = ref(false);
+const showContent = ref(true);
 const { width } = useWindowSize()
 const models = ref([
     {
@@ -107,7 +108,18 @@ const sendUpdateChatSettings = useDebounceFn(() => {
 }, 200)
 
 const toggleMenu = () => {
-    showMenu.value = !showMenu.value;
+    if (showMenu.value) {
+        showMenu.value = false;
+        setTimeout(() => {
+            showContent.value = true;
+        }, 300);
+    } else {
+        showContent.value = false;
+        setTimeout(() => {
+            showMenu.value = true;
+        }, 300);
+    }
+
 }
 
 </script>
@@ -127,7 +139,7 @@ const toggleMenu = () => {
             </div>
             <Transition name="slide">
                 <div v-if="width > 640 ? true : showMenu"
-                    class=" bg-[hsl(0,0%,5%)] h-full w-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
+                    class=" bg-[hsl(0,0%,5%)] z-50 h-full w-full text-white text-xs sm:text-base lg:w-[320px] sm:w-[260px] p-2">
                     <div class="flex flex-col h-full lg:p-4 p-4">
                         <div class="flex gap-2">
                             <PrimaryButton @click="sendCreateRoom"
@@ -210,8 +222,8 @@ const toggleMenu = () => {
                     </div>
                 </div>
             </Transition>
-            <Transition name="fade">
-                <div v-if="width > 640 ? true : !showMenu" :class="{ ' h-full w-full': true }">
+            <Transition name="slide-reverse">
+                <div v-if="width > 640 ? true : showContent" :class="{ ' h-full w-full': true }">
                     <slot />
                 </div>
             </Transition>
@@ -222,8 +234,6 @@ const toggleMenu = () => {
 <style>
 .slide-enter-active {
     transition: all 0.3s ease-in-out;
-    transition-delay: 0.3s;
-
 }
 
 .slide-leave-active {
@@ -235,18 +245,17 @@ const toggleMenu = () => {
     transform: translateX(-100vw);
 }
 
-.fade-leave-active {
+.slide-reverse-leave-active {
     transition: all 0.3s ease-in;
 }
 
 
-.fade-enter-active {
+.slide-reverse-enter-active {
     transition: all 0.3s ease-in-out;
-    transition-delay: 0.3s;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.slide-reverse-enter-from,
+.slide-reverse-leave-to {
     transform: translateX(100vw);
 }
 </style>
