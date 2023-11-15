@@ -52,6 +52,8 @@ onMounted(() => {
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     if (newValue) {
         activeChatRoom.value = { id: newValue.id, name: newValue.name };
+        if (showMenu.value)
+            toggleMenu();
     }
 });
 
@@ -233,7 +235,7 @@ const toggleDeleteChats = () => {
                                 <div>Supprimer Chats</div>
                             </PrimaryButton>
                             <PrimaryButton v-else
-                                class="w-full text-start border h-[41.6px] p-1 mb-2 flex bg-red-700 text-white rounded gap-2 items-center hover:border-red-900 fade transition hover:scale-[1.01]">
+                                class="w-full text-start border h-[41.6px] p-1 mb-2 flex bg-red-700 text-white rounded gap-2 items-center hover:border-red-900  hover:scale-[1.01]">
                                 <div class="w-full">Confirmez</div>
                                 <div class="flex items-center gap-4">
                                     <div class="hover:bg-red-500 rounded-full p-1">
@@ -256,7 +258,7 @@ const toggleDeleteChats = () => {
                 </div>
             </Transition>
             <Transition name="slide-reverse">
-                <div v-if="width > 640 ? true : showContent" :class="{ ' h-full w-full': true }">
+                <div v-if="width > 1024 ? true : showContent" :class="{ ' h-full w-full': true }">
                     <slot />
                 </div>
             </Transition>
