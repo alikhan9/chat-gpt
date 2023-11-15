@@ -50,7 +50,7 @@ const saveInDatabase = (role, content) => {
 }
 
 const send = async () => {
-    if (message.value.length == 0)
+    if (message.value.length == 0 || chatRoom.value == null)
         return;
     const mes = message.value;
     enableInput.value = true;
