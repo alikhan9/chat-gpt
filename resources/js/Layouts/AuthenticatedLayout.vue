@@ -79,7 +79,10 @@ const sendDeleteRoom = (roomId) => {
 const sendDeleteAllRooms = () => {
     router.delete("/chat-rooms/all", {}, {
         preserveScroll: true,
-        preserveState: true
+        preserveState: true,
+        onFinish:() => {
+            toggleDeleteChats();
+        }
     });
 }
 
