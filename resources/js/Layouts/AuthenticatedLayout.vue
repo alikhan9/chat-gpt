@@ -175,7 +175,7 @@ const toggleMenu = () => {
                                             {{ room.name }}
                                         </div>
                                         <input ref="nameLink" @keydown.enter="sendUpdateRoomName" v-model="roomToEdit.name"
-                                        :class="{ 'text-xs sm:text-base p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
+                                        :class="{ 'text-xs sm:text-base w-full p-0 m-0 border-none border-b bg-transparent text-white focus:ring-0 focus:outline-none': true, 'hidden': !editRoomName }" />
                                     </div>
                                     <div v-if="room.id == activeChatRoom.id" class="relative shrink-0 w-[50px] h-full">
                                         <div v-if="!editRoomName" class="absolute -top-[11px] flex items-center gap-2">
