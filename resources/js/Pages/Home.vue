@@ -25,6 +25,7 @@ watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
 const openai = new OpenAI({
     apiKey: import.meta.env.VITE_API_KEY,
     dangerouslyAllowBrowser: true,
+    organization: import.meta.env.VITE_ORGANIZATION,
 });
 
 const chatSettings = ref({});
