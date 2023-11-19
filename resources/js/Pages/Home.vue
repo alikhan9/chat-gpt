@@ -68,7 +68,8 @@ const send = async () => {
     currentStream.value = await openai.chat.completions.create({
         messages: messagesToSend,
         stream: true,
-        ...chatSettings.value
+        ...chatSettings.value,
+        
     });
     fullChat.value.push({ role: 'assistant', content: '' });
     for await (const chunk of currentStream.value) {

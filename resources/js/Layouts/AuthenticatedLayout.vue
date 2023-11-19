@@ -160,7 +160,7 @@ const toggleDeleteChats = () => {
                             <PrimaryButton @click="sendCreateRoom"
                                 class="w-full text-start border p-2 flex border-[hsl(0,0%,25%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                                 <svg-icon type="mdi" :path="mdiPlus"></svg-icon>
-                                <div>Nouveau Chat</div>
+                                <div>New Chat</div>
                             </PrimaryButton>
                             <PrimaryButton class="w-full border-[hsl(0,0%,20%)] hover:border-white lg:hidden"
                                 @click="toggleMenu">
@@ -222,7 +222,7 @@ const toggleDeleteChats = () => {
                                 </select>
                             </div>
                             <div class="mb-4">
-                                <div class="font-bold  text-base sm:text-xl">Température</div>
+                                <div class="font-bold  text-base sm:text-xl">Temperature</div>
                                 <div class="flex items-center justify-between">
                                     <input v-on:change="sendUpdateChatSettings" v-model="chatSettings.temperature"
                                         class="w-[80%]" type="range" min="0" max="2" step="0.1" />
@@ -232,11 +232,11 @@ const toggleDeleteChats = () => {
                             <PrimaryButton v-if="!valideDeleteAllChats" @click="toggleDeleteChats"
                                 class="w-full text-start border p-2 mb-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                                 <svg-icon type="mdi" :path="mdiVacuum"></svg-icon>
-                                <div>Supprimer Chats</div>
+                                <div>Delete All Chats</div>
                             </PrimaryButton>
                             <PrimaryButton v-else
                                 class="w-full text-start border h-[41.6px] p-1 mb-2 flex bg-red-700 text-white rounded gap-2 items-center hover:border-red-900  hover:scale-[1.01]">
-                                <div class="w-full">Confirmez</div>
+                                <div class="w-full">Confirm</div>
                                 <div class="flex items-center gap-4">
                                     <div class="hover:bg-red-500 rounded-full p-1">
                                         <svg-icon @click="sendDeleteAllRooms" class="hover:cursor-pointer" type="mdi"
@@ -251,7 +251,7 @@ const toggleDeleteChats = () => {
                             <PrimaryButton href="/logout" method="POST" type="link"
                                 class="w-full text-start border p-2 flex border-[hsl(0,0%,20%)] rounded gap-2 items-center hover:border-[hsl(0,0%,30%)] hover:scale-[1.01]">
                                 <svg-icon type="mdi" :path="mdiLogout"></svg-icon>
-                                <div>Se déconnecter</div>
+                                <div>Log out</div>
                             </PrimaryButton>
                         </div>
                     </div>
