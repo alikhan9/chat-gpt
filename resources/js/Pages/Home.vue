@@ -1,6 +1,6 @@
 <script setup>
 import { Head, usePage, router } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import OpenAI from "openai";
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiRobot, mdiAlphaABox, mdiSend, mdiStop } from '@mdi/js'
@@ -22,11 +22,11 @@ watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
     chatSettings.value = newValue;
 });
 
-const openai = new OpenAI({
-    apiKey: import.meta.env.VITE_API_KEY,
-    dangerouslyAllowBrowser: true,
-    organization: import.meta.env.VITE_ORGANIZATION,
-});
+// const openai = new OpenAI({
+//     apiKey: import.meta.env.VITE_API_KEY,
+//     // dangerouslyAllowBrowser: true,
+//     organization: import.meta.env.VITE_ORGANIZATION,
+// });
 
 const chatSettings = ref({});
 const max_tokkens_context_message = ref(100);
@@ -37,6 +37,9 @@ const chatRoom = ref(null);
 const enableInput = ref(false);
 const textAreaReff = ref()
 const currentStream = ref(null);
+let eventSource;
+const data = ref(null);
+
 
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     if (newValue) {
@@ -53,6 +56,74 @@ const saveInDatabase = (role, content) => {
     router.post('/message', { role, content, chat_room_id: chatRoom.value.id });
 }
 
+const fetchData = async (messages) => {
+    try {
+        // return;
+        // const response = await fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
+
+        fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }))
+            .then(response => {
+                console.log(response);
+                return response.json()
+            })
+            .then(data => {
+                console.log(data);
+            });
+
+        return;
+
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        let result = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            result = new TextDecoder().decode(value);
+            // console.log(result);
+            // // fullChat.value[fullChat.value.length - 1].content += new TextDecoder().decode(value)
+            // try {
+            const res = JSON.parse(result);
+            //     fullChat.value[fullChat.value.length - 1].content += res.delta.content;
+            // } catch (e) {
+            //     console.log(e);
+            // }
+            result = null;
+        }
+
+        data.value = result;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+const startStream = async () => {
+    if (message.value.length == 0)
+        return;
+    const mes = message.value;
+    enableInput.value = true;
+    message.value = '';
+    // saveInDatabase('user', mes);
+    fullChat.value.push({ role: 'user', content: mes });
+    const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
+    const messages = JSON.stringify(messagesToSend);
+    fetchData(messages);
+
+
+    enableInput.value = false;
+    breakStream.value = false;
+    currentStream.value = null;
+};
+
+
 const send = async () => {
     if (message.value.length == 0)
         return;
@@ -66,12 +137,14 @@ const send = async () => {
 
     messagesToSend.map(m => m.content.slice(0, max_tokkens_context_message.value));
 
-    currentStream.value = await openai.chat.completions.create({
-        messages: messagesToSend,
-        stream: true,
-        ...chatSettings.value,
-        
-    });
+    // currentStream.value = await openai.chat.completions.create({
+    //     messages: messagesToSend,
+    //     ...chatSettings.value,
+
+    // });
+
+    router.post('/message', { chat_room_id: chatRoom.value.id, messages: messages }, {});
+
     fullChat.value.push({ role: 'assistant', content: '' });
     for await (const chunk of currentStream.value) {
         if (breakStream.value)
@@ -147,10 +220,10 @@ const autoResize = () => {
                     <div class="sm:flex gap-4 w-full relative items-end sm:mx-0 ">
                         <div class="flex rounded border relative  w-full overflow-auto ">
                             <textarea :rows="3" ref="textAreaReff" id="message" type="text" @input="autoResize"
-                                @keydown.enter.exact="send" @keydown.enter.shift.exact="text += '\n'" rows="1"
+                                @keydown.enter.exact="startStream" @keydown.enter.shift.exact="text += '\n'" rows="1"
                                 class=" border max-h-[10%] sm:max-h-none p-2  h-[50px] w-full border-none  focus:ring-0  bg-transparent "
                                 style="resize:none;" v-model="message" :disabled="enableInput || !chatRoom" />
-                            <svg-icon @click="send" color="red" size="36"
+                            <svg-icon @click="startStream" color="red" size="36"
                                 :class="{ 'self-center text-white w-[80px] mx-2 p-1 rounded': true, 'bg-blue-500  hover:cursor-pointer': message.length != 0 }"
                                 type="mdi" :path="mdiSend">
                             </svg-icon>

@@ -4,6 +4,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatRoomsController;
 use App\Http\Controllers\ChatSettingsController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\OpenAiController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'destroy']);
     Route::put('/chat-rooms/{chatRoom}', [ChatRoomsController::class,'update']);
     Route::put('chat-settings', [ChatSettingsController::class, 'update']);
+    // Route::post('/openai/text', [OpenAiController::class,'streamOpenAI']);
+    Route::get('/openai/text', [OpenAiController::class,'streamOpenAI']);
 });
 
 require __DIR__.'/auth.php';
