@@ -9,34 +9,51 @@ import { useWindowSize } from '@vueuse/core'
 const props = defineProps({
     chatSettings: Object
 })
+
+const scrollToBottom = () => {
+    container.value.scrollTop = container.value.scrollHeight;
+};
+
+
 onMounted(() => {
     if (usePage().props.chat.activeChatRoom != null) {
         fullChat.value = usePage().props.chat.activeChatRoom.messages.map(c => { return { content: c.content, role: c.role } });
         chatRoom.value = { id: usePage().props.chat.activeChatRoom.id, name: usePage().props.chat.activeChatRoom.name };
     }
-
     chatSettings.value = usePage().props.chat.chatSettings;
-})
+
+    window.Echo.private(
+        "App.Models.User." + usePage().props.auth.user.id
+    ).listen('.chunks', (e) => {
+        if (e.stop) {
+            if (e.message){
+                fullChat.value[fullChat.value.length - 1].content += e.message;
+                scrollToBottom();
+            }
+            saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
+            enableInput.value = false;
+            breakStream.value = false;
+            currentStream.value = null;
+        }
+        else{
+            fullChat.value[fullChat.value.length - 1].content += e.message;
+            scrollToBottom();
+        }
+    })
+});
 
 watch(() => usePage().props.chat.chatSettings, (newValue, oldValue) => {
     chatSettings.value = newValue;
 });
 
-// const openai = new OpenAI({
-//     apiKey: import.meta.env.VITE_API_KEY,
-//     // dangerouslyAllowBrowser: true,
-//     organization: import.meta.env.VITE_ORGANIZATION,
-// });
-
 const chatSettings = ref({});
-const max_tokkens_context_message = ref(100);
-const model = ref('gpt-3.5-turbo');
 const message = ref('');
 const fullChat = ref([]);
 const chatRoom = ref(null);
 const enableInput = ref(false);
 const textAreaReff = ref()
 const currentStream = ref(null);
+const container = ref(null);
 
 
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
@@ -49,55 +66,15 @@ watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
     }
 });
 
-
 const saveInDatabase = (role, content) => {
     router.post('/message', { role, content, chat_room_id: chatRoom.value.id });
 }
-
-const fetchData = async (messages) => {
-    try {
-        const response = await fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        let result = '';
-
-        while (true) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-                break;
-            }
-
-            result = new TextDecoder().decode(value);
-            // Split the result into an array of strings based on double quotes
-            const strings = result.split('"').filter(str => str.trim() !== '');
-
-            // Process each extracted string
-            strings.forEach(str => {
-                if (str === 'null') {
-                    // Handle the case where the string is 'null'
-                } else {
-                    if (fullChat.value[fullChat.value.length - 1].role == 'user')
-                        fullChat.value.push({ role: 'assistant', content: '' });
-                    fullChat.value[fullChat.value.length - 1].content += JSON.parse('\"' + str + '\"');
-                }
-            });
-        }
-        saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
-
-    } catch (error) {
-        // console.error('Error fetching data:', error);
-    }
-};
 
 const startStream = async () => {
     if (message.value.length == 0)
         return;
     const mes = message.value;
+    scrollToBottom();
     enableInput.value = true;
     message.value = '';
     saveInDatabase('user', mes);
@@ -105,10 +82,7 @@ const startStream = async () => {
     const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
     const messages = JSON.stringify(messagesToSend);
     fullChat.value.push({ role: 'assistant', content: '' });
-    fetchData(messages);
-    enableInput.value = false;
-    breakStream.value = false;
-    currentStream.value = null;
+    axios.get('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
 };
 
 const breakStream = ref(false);
@@ -134,7 +108,7 @@ const autoResize = () => {
     <div class="text-white h-full">
         <div class="h-full">
             <div class="flex flex-col h-full">
-                <div class="flex-1 h-full"
+                <div class="flex-1 h-full" ref="container"
                     :class="{ ' mt-[40px] sm:mt-0 scrollbar-hide sm:scrollbar-default border-b overflow-auto w-screen sm:w-full': true, '': fullChat.length == 0 }">
                     <div class=" flex flex-col justify-center w-full">
                         <div class="mb-2" v-for="(item, index) in fullChat" :key="index">

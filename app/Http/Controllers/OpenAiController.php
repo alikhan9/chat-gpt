@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SendChunkOfGptResponse;
 use Illuminate\Http\Request;
 use OpenAI\Laravel\Facades\OpenAI;
 
@@ -16,12 +17,18 @@ class OpenAiController extends Controller
             'messages' => $messages,
         ]);
 
-        return response()->stream(function () use ($stream) {
-            foreach ($stream as $response) {
-                echo  json_encode($response->choices[0]->delta->content);
-                ob_flush();
-                flush();
+        $temp = '';
+
+        foreach ($stream as $response) {
+            $temp .= $response->choices[0]->delta->content;
+
+            if (strlen($temp) >= 20) {
+                event(new SendChunkOfGptResponse($response->choices[0]->finishReason, $temp));
+                $temp = '';
             }
-        }, 200, ['Content-Type' => 'text/event-stream']);
+        }
+        if (!empty($temp)) {
+            event(new SendChunkOfGptResponse('Stop', $temp));
+        }
     }
 }

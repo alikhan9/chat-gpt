@@ -22,7 +22,9 @@
         "@mdi/js": "^7.3.67",
         "@vueuse/core": "^10.6.1",
         "dotenv": "^16.3.1",
+        "laravel-echo": "^1.15.3",
         "openai": "^4.17.4",
+        "pusher-js": "^8.3.0",
         "tailwind-scrollbar-hide": "^1.1.7"
     }
 }
