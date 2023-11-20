@@ -37,7 +37,6 @@ const chatRoom = ref(null);
 const enableInput = ref(false);
 const textAreaReff = ref()
 const currentStream = ref(null);
-const data = ref(null);
 
 
 watch(() => usePage().props.chat.activeChatRoom, (newValue, oldValue) => {
@@ -81,16 +80,15 @@ const fetchData = async (messages) => {
             strings.forEach(str => {
                 if (str === 'null') {
                     // Handle the case where the string is 'null'
-                    console.log('Received null value');
+                    // console.log('Received null value');
                 } else {
                     // Extracted content within double quotes
-                    console.log(str);
-                    fullChat.value[fullChat.value.length - 1].content += str;
+                    fullChat.value[fullChat.value.length - 1].content += JSON.parse('\"' + str + '\"');
                 }
             });
         }
+        saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
 
-        data.value = result;
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -108,7 +106,7 @@ const startStream = async () => {
     const messages = JSON.stringify(messagesToSend);
     fullChat.value.push({ role: 'assistant', content: '' });
     fetchData(messages);
-    saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
+    // console.log(fullChat.value);
     enableInput.value = false;
     breakStream.value = false;
     currentStream.value = null;
