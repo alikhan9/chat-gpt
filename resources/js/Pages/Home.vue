@@ -81,6 +81,8 @@ const fetchData = async (messages) => {
                 if (str === 'null') {
                     // Handle the case where the string is 'null'
                 } else {
+                    if (fullChat.value[fullChat.value.length - 1].role == 'user')
+                        fullChat.value.push({ role: 'assistant', content: '' });
                     fullChat.value[fullChat.value.length - 1].content += JSON.parse('\"' + str + '\"');
                 }
             });
