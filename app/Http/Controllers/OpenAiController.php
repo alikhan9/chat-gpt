@@ -18,7 +18,7 @@ class OpenAiController extends Controller
 
         return response()->stream(function () use ($stream) {
             foreach ($stream as $response) {
-                echo "\n" .json_encode($response->choices[0]->toArray()) . "\n";
+                echo  json_encode($response->choices[0]->delta->content);
                 ob_flush();
                 flush();
             }

@@ -37,7 +37,6 @@ const chatRoom = ref(null);
 const enableInput = ref(false);
 const textAreaReff = ref()
 const currentStream = ref(null);
-let eventSource;
 const data = ref(null);
 
 
@@ -58,20 +57,7 @@ const saveInDatabase = (role, content) => {
 
 const fetchData = async (messages) => {
     try {
-        // return;
-        // const response = await fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
-
-        fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }))
-            .then(response => {
-                console.log(response);
-                return response.json()
-            })
-            .then(data => {
-                console.log(data);
-            });
-
-        return;
-
+        const response = await fetch('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -88,15 +74,20 @@ const fetchData = async (messages) => {
             }
 
             result = new TextDecoder().decode(value);
-            // console.log(result);
-            // // fullChat.value[fullChat.value.length - 1].content += new TextDecoder().decode(value)
-            // try {
-            const res = JSON.parse(result);
-            //     fullChat.value[fullChat.value.length - 1].content += res.delta.content;
-            // } catch (e) {
-            //     console.log(e);
-            // }
-            result = null;
+            // Split the result into an array of strings based on double quotes
+            const strings = result.split('"').filter(str => str.trim() !== '');
+
+            // Process each extracted string
+            strings.forEach(str => {
+                if (str === 'null') {
+                    // Handle the case where the string is 'null'
+                    console.log('Received null value');
+                } else {
+                    // Extracted content within double quotes
+                    console.log(str);
+                    fullChat.value[fullChat.value.length - 1].content += str;
+                }
+            });
         }
 
         data.value = result;
@@ -111,52 +102,17 @@ const startStream = async () => {
     const mes = message.value;
     enableInput.value = true;
     message.value = '';
-    // saveInDatabase('user', mes);
+    saveInDatabase('user', mes);
     fullChat.value.push({ role: 'user', content: mes });
     const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
     const messages = JSON.stringify(messagesToSend);
-    fetchData(messages);
-
-
-    enableInput.value = false;
-    breakStream.value = false;
-    currentStream.value = null;
-};
-
-
-const send = async () => {
-    if (message.value.length == 0)
-        return;
-    const mes = message.value;
-    enableInput.value = true;
-    message.value = '';
-    saveInDatabase('user', mes);
-    fullChat.value.push({ role: 'user', content: mes });
-
-    const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
-
-    messagesToSend.map(m => m.content.slice(0, max_tokkens_context_message.value));
-
-    // currentStream.value = await openai.chat.completions.create({
-    //     messages: messagesToSend,
-    //     ...chatSettings.value,
-
-    // });
-
-    router.post('/message', { chat_room_id: chatRoom.value.id, messages: messages }, {});
-
     fullChat.value.push({ role: 'assistant', content: '' });
-    for await (const chunk of currentStream.value) {
-        if (breakStream.value)
-            break;
-        if (chunk.choices[0].delta.content)
-            fullChat.value[fullChat.value.length - 1].content += chunk.choices[0].delta.content;
-    }
+    fetchData(messages);
     saveInDatabase(fullChat.value[fullChat.value.length - 1].role, fullChat.value[fullChat.value.length - 1].content);
     enableInput.value = false;
     breakStream.value = false;
     currentStream.value = null;
-}
+};
 
 const breakStream = ref(false);
 
