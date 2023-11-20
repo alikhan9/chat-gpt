@@ -25,8 +25,11 @@ onMounted(() => {
     window.Echo.private(
         "App.Models.User." + usePage().props.auth.user.id
     ).listen('.chunks', (e) => {
+        if (fullChat.value[fullChat.value.length - 1].role !== 'assistant')
+            fullChat.value.push({ role: 'assistant', content: '' });
+
         if (e.stop) {
-            if (e.message){
+            if (e.message) {
                 fullChat.value[fullChat.value.length - 1].content += e.message;
                 scrollToBottom();
             }
@@ -35,7 +38,7 @@ onMounted(() => {
             breakStream.value = false;
             currentStream.value = null;
         }
-        else{
+        else {
             fullChat.value[fullChat.value.length - 1].content += e.message;
             scrollToBottom();
         }
@@ -81,7 +84,6 @@ const startStream = async () => {
     fullChat.value.push({ role: 'user', content: mes });
     const messagesToSend = fullChat.value.length > 4 ? fullChat.value.slice(fullChat.value.length - 4, fullChat.value.length) : fullChat.value;
     const messages = JSON.stringify(messagesToSend);
-    fullChat.value.push({ role: 'assistant', content: '' });
     axios.get('/openai/text/?' + new URLSearchParams({ messages: messages, ...chatSettings.value }));
 };
 
