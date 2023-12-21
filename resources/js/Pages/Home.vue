@@ -88,7 +88,7 @@ const saveInDatabase = (role, content) => {
     router.post("/message", { role, content, chat_room_id: chatRoom.value.id });
 };
 
-// TODO: Audio stream
+// TODO: Audio stream , not today
 const sendAudio = () => {
     if (message.value.length == 0) return;
     const mes = message.value;
